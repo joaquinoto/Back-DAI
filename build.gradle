@@ -1,0 +1,48 @@
+plugins {
+    id 'org.springframework.boot' version '3.1.0'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'java'
+}
+
+group = 'com.cocinaapp'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot Starter Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring Boot Starter Data JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Spring Boot Starter Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // MySQL Connector
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Spring Boot Starter Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	dependencies {
+    // Otras dependencias...
+    runtimeOnly 'mysql:mysql-connector-java:8.0.33' // Asegúrate de usar una versión compatible
+}
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
