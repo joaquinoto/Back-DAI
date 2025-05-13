@@ -1,9 +1,9 @@
 package com.cocinaapp.repository;
 
-import com.cocinaapp.model.Ingrediente;
+import com.cocinaapp.model.Conversion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IngredienteRepository extends JpaRepository<Ingrediente, Integer> {
+public interface ConversionRepository extends JpaRepository<Conversion, Integer> {
 }

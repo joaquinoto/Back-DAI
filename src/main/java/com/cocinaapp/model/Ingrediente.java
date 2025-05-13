@@ -1,24 +1,18 @@
 package com.cocinaapp.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "ingredientes")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class Ingrediente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "idIngrediente")
+    private Integer idIngrediente;
 
-    @Column(nullable = false)
+    @Column(name = "nombre", length = 200)
     private String nombre;
-
-    @Column(nullable = false)
-    private String unidad;
-
 }

@@ -1,14 +1,11 @@
 package com.cocinaapp.controller;
 
 import com.cocinaapp.model.Usuario;
-import com.cocinaapp.Service.UsuarioService;
+import com.cocinaapp.service.UsuarioService;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -17,26 +14,23 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @GetMapping
-    public List<Usuario> obtenerTodosLosUsuarios() {
-        return usuarioService.obtenerTodosLosUsuarios();
+    @PostMapping("/registro/iniciar")
+    public ResponseEntity<String> iniciarRegistro(@RequestParam String email, @RequestParam String alias) {
+        try {
+            String respuesta = usuarioService.iniciarRegistro(email, alias);
+            return ResponseEntity.ok(respuesta);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable Long id) {
-        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorId(id);
-        return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public ResponseEntity<Usuario> guardarUsuario(@RequestBody Usuario usuario) {
-        Usuario usuarioGuardado = usuarioService.guardarUsuario(usuario);
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioGuardado);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
-        usuarioService.eliminarUsuario(id);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/registro/completar")
+    public ResponseEntity<String> completarRegistro(@RequestParam String email, @RequestParam String codigo, @RequestBody Usuario usuario) {
+        try {
+            boolean exito = usuarioService.completarRegistro(email, codigo, usuario);
+            return exito ? ResponseEntity.ok("Registro completado con éxito.") : ResponseEntity.badRequest().body("Error en el registro.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

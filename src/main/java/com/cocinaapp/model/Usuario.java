@@ -2,32 +2,37 @@ package com.cocinaapp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "idUsuario")
+    private int idUsuario;
 
-    @Column(nullable = false)
-    private String rol;
+    @Column(name = "mail", unique = true, length = 150)
+    private String mail;
 
-    @Column(nullable = false)
+    @Column(name = "nickname", nullable = false, length = 100)
+    private String nickname;
+
+    @Column(name = "habilitado", length = 2)
+    private String habilitado;
+
+    @Column(name = "nombre", length = 150)
     private String nombre;
 
-    @Column(unique = true, nullable = false)
-    private String correo;
+    @Column(name = "direccion", length = 150)
+    private String direccion;
 
-    @Column(nullable = false)
+    @Column(name = "avatar", length = 300)
+    private String avatar;
+
+    @Column(name= "contrasena", length = 300)
     private String contrasena;
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Receta> recetas;
 }

@@ -1,7 +1,8 @@
-package com.cocinaapp.Service;
+package com.cocinaapp.service;
 
 import com.cocinaapp.model.Ingrediente;
-import com.cocinaapp.Repository.IngredienteRepository;
+import com.cocinaapp.repository.IngredienteRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class IngredienteService {
         return ingredienteRepository.findAll();
     }
 
-    public Optional<Ingrediente> obtenerIngredientePorId(Long id) {
+    public Optional<Ingrediente> obtenerIngredientePorId(Integer id) {
         return ingredienteRepository.findById(id);
     }
 
@@ -26,7 +27,7 @@ public class IngredienteService {
         return ingredienteRepository.save(ingrediente);
     }
 
-    public void eliminarIngrediente(Long id) {
+    public void eliminarIngrediente(Integer id) {
         ingredienteRepository.deleteById(id);
     }
 }

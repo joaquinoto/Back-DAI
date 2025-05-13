@@ -1,7 +1,8 @@
 package com.cocinaapp.controller;
 
 import com.cocinaapp.model.Ingrediente;
-import com.cocinaapp.Service.IngredienteService;
+import com.cocinaapp.service.IngredienteService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class IngredienteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ingrediente> obtenerIngredientePorId(@PathVariable Long id) {
+    public ResponseEntity<Ingrediente> obtenerIngredientePorId(@PathVariable Integer id) {
         Optional<Ingrediente> ingrediente = ingredienteService.obtenerIngredientePorId(id);
         return ingrediente.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -35,7 +36,7 @@ public class IngredienteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarIngrediente(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarIngrediente(@PathVariable Integer id) {
         ingredienteService.eliminarIngrediente(id);
         return ResponseEntity.noContent().build();
     }

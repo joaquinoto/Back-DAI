@@ -1,36 +1,38 @@
 package com.cocinaapp.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.util.List;
+import lombok.Data;
 
 @Entity
 @Table(name = "recetas")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class Receta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "idReceta")
+    private Integer idReceta;
 
-    @Column(nullable = false)
-    private String nombre;
-
-    private String descripcion;
-    private String tipo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "idUsuario", referencedColumnName = "idUsuario")
     private Usuario usuario;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-        name = "receta_ingrediente",
-        joinColumns = @JoinColumn(name = "receta_id"),
-        inverseJoinColumns = @JoinColumn(name = "ingrediente_id")
-    )
-    private List<Ingrediente> ingredientes;
+    @Column(name = "nombreReceta", length = 500)
+    private String nombreReceta;
+
+    @Column(name = "descripcionReceta", length = 1000)
+    private String descripcionReceta;
+
+    @Column(name = "fotoPrincipal", length = 300)
+    private String fotoPrincipal;
+
+    @Column(name = "porciones")
+    private Integer porciones;
+
+    @Column(name = "cantidadPersonas")
+    private Integer cantidadPersonas;
+
+    @ManyToOne
+    @JoinColumn(name = "idTipo", referencedColumnName = "idTipo")
+    private TipoReceta tipoReceta;
 }

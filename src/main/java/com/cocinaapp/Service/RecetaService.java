@@ -1,7 +1,8 @@
-package com.cocinaapp.Service;
+package com.cocinaapp.service;
 
 import com.cocinaapp.model.Receta;
-import com.cocinaapp.Repository.RecetaRepository;
+import com.cocinaapp.repository.RecetaRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class RecetaService {
         return recetaRepository.findAll();
     }
 
-    public Optional<Receta> obtenerRecetaPorId(Long id) {
+    public Optional<Receta> obtenerRecetaPorId(Integer id) {
         return recetaRepository.findById(id);
     }
 
@@ -26,7 +27,27 @@ public class RecetaService {
         return recetaRepository.save(receta);
     }
 
-    public void eliminarReceta(Long id) {
+    public void eliminarReceta(Integer id) {
         recetaRepository.deleteById(id);
+    }
+
+    public List<Receta> buscarPorNombre(String nombre) {
+        return recetaRepository.findByNombreRecetaContainingIgnoreCase(nombre);
+    }
+
+    public List<Receta> buscarPorTipo(Integer idTipo) {
+        return recetaRepository.findByTipoReceta_IdTipo(idTipo);
+    }
+
+    public List<Receta> buscarPorUsuario(Integer idUsuario) {
+        return recetaRepository.findByUsuario_IdUsuario(idUsuario);
+    }
+
+    public List<Receta> buscarPorIngrediente(String nombreIngrediente) {
+        return recetaRepository.findByIngredientes_NombreIgnoreCase(nombreIngrediente);
+    }
+
+    public List<Receta> buscarSinIngrediente(String nombreIngrediente) {
+        return recetaRepository.findByIngredientes_NombreNotIgnoreCase(nombreIngrediente);
     }
 }
