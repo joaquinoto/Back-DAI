@@ -25,10 +25,37 @@ public class UsuarioController {
     }
 
     @PostMapping("/registro/completar")
-    public ResponseEntity<String> completarRegistro(@RequestParam String email, @RequestParam String codigo, @RequestBody Usuario usuario) {
+    public ResponseEntity<String> completarRegistro(
+            @RequestParam String email,
+            @RequestParam String codigo,
+            @RequestParam(defaultValue = "false") boolean esAlumno,
+            @RequestBody Usuario usuario) {
         try {
-            boolean exito = usuarioService.completarRegistro(email, codigo, usuario);
+            boolean exito = usuarioService.completarRegistro(email, codigo, usuario, esAlumno);
             return exito ? ResponseEntity.ok("Registro completado con éxito.") : ResponseEntity.badRequest().body("Error en el registro.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/recuperar/solicitar")
+    public ResponseEntity<String> solicitarRecuperacion(@RequestParam String email) {
+        try {
+            String respuesta = usuarioService.solicitarRecuperacion(email);
+            return ResponseEntity.ok(respuesta);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/recuperar/completar")
+    public ResponseEntity<String> completarRecuperacion(
+            @RequestParam String email,
+            @RequestParam String codigo,
+            @RequestParam String nuevaContrasena) {
+        try {
+            boolean exito = usuarioService.completarRecuperacion(email, codigo, nuevaContrasena);
+            return exito ? ResponseEntity.ok("Contraseña actualizada con éxito.") : ResponseEntity.badRequest().body("Error en la recuperación.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

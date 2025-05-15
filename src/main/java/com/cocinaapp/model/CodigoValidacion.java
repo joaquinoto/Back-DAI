@@ -22,4 +22,14 @@ public class CodigoValidacion {
 
     @Column(name = "fecha_expiracion", nullable = false)
     private LocalDateTime fechaExpiracion;
+
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "usado", nullable = false)
+    private boolean usado;
+
+    @Column(nullable = false)
+    private String tipo; // "REGISTRO" o "RECUPERACION"
+
 }

@@ -33,6 +33,9 @@ public class Usuario {
     @Column(name = "avatar", length = 300)
     private String avatar;
 
-    @Column(name= "contrasena", length = 300)
+    @Column(name= "contrasena", nullable = false, length = 300)
     private String contrasena;
+
+    @Column(nullable = false)
+    private String rol = "USUARIO";
 }

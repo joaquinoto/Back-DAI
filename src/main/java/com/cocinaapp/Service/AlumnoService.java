@@ -19,15 +19,19 @@ public class AlumnoService {
         return alumnoRepository.findAll();
     }
 
-    public Optional<Alumno> obtenerAlumnoPorId(Long id) {
+    public Optional<Alumno> obtenerAlumnoPorId(Integer id) {
         return alumnoRepository.findById(id);
     }
 
+    public Optional<Alumno> obtenerAlumnoPorNombre(String nombre) {
+        return alumnoRepository.findByNombre(nombre);
+    }
+    
     public Alumno guardarAlumno(Alumno alumno) {
         return alumnoRepository.save(alumno);
     }
 
-    public boolean eliminarAlumno(Long id) {
+    public boolean eliminarAlumno(Integer id) {
         if (alumnoRepository.existsById(id)) {
             alumnoRepository.deleteById(id);
             return true;

@@ -22,6 +22,8 @@ dependencies {
     // Spring Boot Starter Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
     // MySQL Connector
     runtimeOnly 'mysql:mysql-connector-java'
 
