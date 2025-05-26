@@ -1,9 +1,14 @@
 package com.cocinaapp.backend.controller;
 
 import com.cocinaapp.backend.model.Alumno;
+import com.cocinaapp.backend.model.LoginRequest;
 import com.cocinaapp.backend.model.RegistroRequest;
 import com.cocinaapp.backend.model.Usuario;
+import com.cocinaapp.backend.security.JwtService;
 import com.cocinaapp.backend.service.UsuarioService;
+
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +28,9 @@ public class UsuarioController {
 
     @Autowired
     private com.cocinaapp.backend.repository.UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private JwtService jwtService;
 
     @PostMapping("/registro/iniciar")
     public ResponseEntity<String> iniciarRegistro(@RequestParam String email, @RequestParam String alias) {
@@ -110,4 +118,39 @@ public ResponseEntity<String> completarRegistro(
             return ResponseEntity.badRequest().body("Error al crear admin: " + e.getMessage());
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        String identificador = loginRequest.getIdentificador();
+        String contrasena = loginRequest.getContrasena();
+
+        Usuario user = usuarioRepository.findByMail(identificador)
+            .orElseGet(() -> usuarioRepository.findByNickname(identificador).orElse(null));
+
+        if (user == null) {
+            return ResponseEntity.status(401).body("Usuario no encontrado.");
+        }
+        if (!passwordEncoder.matches(contrasena, user.getContrasena())) {
+            return ResponseEntity.status(401).body("Contraseña incorrecta.");
+        }
+
+        // Generar el token JWT
+        String token = jwtService.generateToken(
+            user.getMail(), // o user.getNickname() según tu lógica
+            Map.of("rol", user.getRol())
+        );
+
+        // Devolver el token y datos básicos del usuario
+        return ResponseEntity.ok(Map.of(
+            "token", token,
+            "usuario", user.getNickname(),
+            "rol", user.getRol()
+        ));
+    }
+
+    @GetMapping("/sugerir-alias")
+    public ResponseEntity<List<String>> sugerirAliasDisponibles(@RequestParam String alias) {
+        return ResponseEntity.ok(usuarioService.sugerirAliasDisponibles(alias));
+    }
+
 }

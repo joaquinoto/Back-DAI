@@ -1,5 +1,7 @@
 package com.cocinaapp.backend.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -29,4 +31,8 @@ public class Calificacion {
 
     @Column(name = "aprobado")
     private boolean aprobado = false;
+
+    @Column(name = "fecha", updatable = false)
+    @org.hibernate.annotations.CreationTimestamp
+    private LocalDateTime fecha;
 }

@@ -36,6 +36,6 @@ public class Usuario {
     @Column(name= "contrasena", nullable = false, length = 300)
     private String contrasena;
 
-    @Column(nullable = false)
-    private String rol = "USUARIO";
+    @Column(name= "rol", nullable = false)
+    private String rol; // USUARIO, ALUMNO, ADMIN
 }

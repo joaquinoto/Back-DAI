@@ -1,5 +1,8 @@
 package com.cocinaapp.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,5 +27,6 @@ public class Ingrediente {
 
     @ManyToOne
     @JoinColumn(name = "idReceta")
+    @JsonBackReference
     private Receta receta;
 }

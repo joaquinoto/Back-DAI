@@ -2,23 +2,27 @@ package com.cocinaapp.backend.config;
 
 import org.springframework.context.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
 import com.cocinaapp.backend.security.JwtAuthenticationFilter;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 @Configuration
-@EnableMethodSecurity // Habilita @PreAuthorize
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class).build();
     }
 
     @Bean
@@ -30,6 +34,7 @@ public class SecurityConfig {
                 // Endpoints públicos (visitantes)
                 .requestMatchers(
                     "/api/auth/**",
+                    "/api/usuarios/login",
                     "/api/usuarios/registro/**",
                     "/api/recetas/ultimas",
                     "/api/recetas/buscar/**",
@@ -46,7 +51,8 @@ public class SecurityConfig {
                     "/api/sedes",
                     "/api/sedes/{id}"
                 ).permitAll()
-
+                // Permitir aprobar recetas antes que la regla general de recetas
+                .requestMatchers("/api/recetas/aprobar/**").hasRole("ADMIN")
                 // Endpoints solo para usuarios autenticados (USUARIO o ALUMNO)
                 .requestMatchers(
                     "/api/recetas/**",
@@ -57,27 +63,14 @@ public class SecurityConfig {
                     "/api/multimedia/**",
                     "/api/conversiones/**"
                 ).hasAnyRole("USUARIO", "ALUMNO")
-
-                // Endpoints solo para alumnos
                 .requestMatchers(
                     "/api/alumnos/**",
                     "/api/asistencias/**",
                     "/api/cronogramas/**"
                 ).hasRole("ALUMNO")
-
-                // Endpoints solo para administradores (si los tienes)
-                // .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
-                // Cualquier otra request requiere autenticación
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
     }
 }

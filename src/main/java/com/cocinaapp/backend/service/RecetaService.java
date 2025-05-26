@@ -109,4 +109,8 @@ public class RecetaService {
 
     return recetaEscalada;
 }
+
+    public List<Receta> obtenerUltimasTresRecetas() {
+        return recetaRepository.findTop3ByOrderByFechaCreacionDesc();
+    }
 }

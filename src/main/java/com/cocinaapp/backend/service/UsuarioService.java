@@ -114,7 +114,7 @@ public class UsuarioService {
     }
 
     // Sugerir alias que no estén en uso ni en validación pendiente
-    private List<String> sugerirAliasDisponibles(String alias) {
+    public List<String> sugerirAliasDisponibles(String alias) {
         List<String> posibles = List.of(alias + "123", alias + "_user", alias + "2025");
         return posibles.stream()
             .filter(a -> !usuarioRepository.existsByNickname(a) && !codigoValidacionRepository.existsByAliasAndUsadoFalse(a))

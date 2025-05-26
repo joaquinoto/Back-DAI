@@ -1,6 +1,10 @@
 package com.cocinaapp.backend.model;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -40,6 +44,10 @@ public class Receta {
     @Column(name = "aprobado")
     private boolean aprobado = false;
 
-    @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL)
-    private List<Ingrediente> ingredientes;
+    @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Ingrediente> ingredientes = new ArrayList<>();
+
+    @Column(name = "fechaCreacion")
+    private java.time.LocalDateTime fechaCreacion = java.time.LocalDateTime.now();
 }

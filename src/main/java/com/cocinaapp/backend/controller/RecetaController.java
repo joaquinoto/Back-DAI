@@ -87,4 +87,9 @@ public class RecetaController {
         Receta recetaEscalada = recetaService.escalarReceta(idReceta, porciones);
         return ResponseEntity.ok(recetaEscalada);
     }
+
+    @GetMapping("/ultimas")
+    public ResponseEntity<List<Receta>> obtenerUltimasTres() {
+        return ResponseEntity.ok(recetaService.obtenerUltimasTresRecetas());
+    }
 }

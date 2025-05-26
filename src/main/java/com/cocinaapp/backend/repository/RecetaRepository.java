@@ -17,6 +17,5 @@ public interface RecetaRepository extends JpaRepository<Receta, Integer> {
     List<Receta> findByIngredientes_NombreIgnoreCaseAndAprobadoTrue(String nombreIngrediente);
     List<Receta> findByIngredientes_NombreNotIgnoreCaseAndAprobadoTrue(String nombreIngrediente);
     Optional<Receta> findByNombreRecetaAndUsuario_IdUsuario(String nombreReceta, Integer idUsuario);
-
-
+    List<Receta> findTop3ByOrderByFechaCreacionDesc();
 }

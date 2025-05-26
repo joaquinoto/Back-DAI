@@ -11,5 +11,6 @@ import com.cocinaapp.backend.model.Usuario;
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     boolean existsByNickname(String nickname);
     Optional<Usuario> findByMail(String email);
+    Optional<Usuario> findByNickname(String nickname);
     
 }

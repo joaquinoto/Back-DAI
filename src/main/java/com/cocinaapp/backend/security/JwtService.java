@@ -11,7 +11,7 @@ import java.util.Map;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "admin"; // Cambia esto por una clave segura
+    private static final String SECRET_KEY = "mi_clave_super_secreta_para_jwt_123456"; // Cambia esto por una clave segura
 
     public String generateToken(String username, Map<String, Object> extraClaims) {
         return Jwts.builder()
@@ -49,4 +49,6 @@ public class JwtService {
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
+
+    
 }

@@ -27,4 +27,10 @@ public class CalificacionService {
         calificacion.setAprobado(true);
         calificacionRepository.save(calificacion);
     }
+
+    public Calificacion agregarCalificacion(Calificacion calificacion) {
+        calificacion.setAprobado(false); // Los comentarios deben ser aprobados por la empresa
+        calificacion.setFecha(java.time.LocalDateTime.now());
+        return calificacionRepository.save(calificacion);
+    }
 }

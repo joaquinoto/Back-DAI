@@ -2,18 +2,15 @@ package com.cocinaapp.backend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "asistenciaCursos")
+@Table(name = "pagos_curso")
 @Data
-public class AsistenciaCurso {
-
+public class PagoCurso {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idAsistencia")
-    private Integer idAsistencia;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "idAlumno", nullable = false)
@@ -23,10 +20,12 @@ public class AsistenciaCurso {
     @JoinColumn(name = "idCronograma", nullable = false)
     private CronogramaCurso cronogramaCurso;
 
-    @Column(name = "fecha")
+    @Column(nullable = false)
+    private Double monto;
+
+    @Column(nullable = false)
+    private String tipo; // "PAGO" o "REINTEGRO"
+
+    @Column(nullable = false)
     private LocalDateTime fecha;
-
-    @Column(name = "fechaBaja")
-    private LocalDateTime fechaBaja;
-
 }
