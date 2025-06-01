@@ -11,4 +11,5 @@ import com.cocinaapp.backend.model.Calificacion;
 public interface CalificacionRepository extends JpaRepository<Calificacion, Integer> {
     List<Calificacion> findByReceta_IdRecetaAndAprobadoTrue(int idReceta);
     List<Calificacion> findByAprobadoFalse();
+    Calificacion save(Calificacion calificacion);
 }

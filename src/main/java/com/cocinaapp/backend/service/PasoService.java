@@ -30,4 +30,6 @@ public class PasoService {
     public void eliminarPaso(Integer id) {
         pasoRepository.deleteById(id);
     }
+
+    
 }

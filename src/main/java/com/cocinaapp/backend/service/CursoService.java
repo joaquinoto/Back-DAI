@@ -1,7 +1,9 @@
 package com.cocinaapp.backend.service;
 
 import com.cocinaapp.backend.model.Curso;
+import com.cocinaapp.backend.model.Promocion;
 import com.cocinaapp.backend.repository.CursoRepository;
+import com.cocinaapp.backend.repository.PromocionRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ public class CursoService {
 
     @Autowired
     private CursoRepository cursoRepository;
+    @Autowired
+    private PromocionRepository promocionRepository;
 
     public List<Curso> obtenerTodosLosCursos() {
         return cursoRepository.findAll();
@@ -30,4 +34,5 @@ public class CursoService {
     public void eliminarCurso(Integer id) {
         cursoRepository.deleteById(id);
     }
+
 }

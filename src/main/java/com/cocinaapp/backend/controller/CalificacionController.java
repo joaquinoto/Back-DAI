@@ -15,6 +15,12 @@ public class CalificacionController {
     @Autowired
     private CalificacionService calificacionService;
 
+    @PostMapping
+    public ResponseEntity<?> agregarCalificacion(@RequestBody Calificacion calificacion) {
+        calificacionService.agregarCalificacion(calificacion);
+        return ResponseEntity.ok("Calificación registrada. Queda pendiente de aprobación.");
+    }
+
     @GetMapping("/receta/{idReceta}")
     public ResponseEntity<List<Calificacion>> listarAprobadasPorReceta(@PathVariable int idReceta) {
         return ResponseEntity.ok(calificacionService.listarAprobadasPorReceta(idReceta));

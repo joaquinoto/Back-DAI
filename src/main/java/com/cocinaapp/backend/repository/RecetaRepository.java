@@ -5,17 +5,20 @@ import org.springframework.stereotype.Repository;
 
 import com.cocinaapp.backend.model.Receta;
 
+import org.springframework.data.domain.Sort;
+
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface RecetaRepository extends JpaRepository<Receta, Integer> {
-    List<Receta> findByNombreRecetaContainingIgnoreCaseAndAprobadoTrue(String nombreReceta);
-    List<Receta> findByTipoReceta_IdTipoAndAprobadoTrue(Integer idTipo);
-    List<Receta> findByUsuario_IdUsuario(Integer idUsuario);
-    List<Receta> findByAprobadoTrue();
-    List<Receta> findByIngredientes_NombreIgnoreCaseAndAprobadoTrue(String nombreIngrediente);
-    List<Receta> findByIngredientes_NombreNotIgnoreCaseAndAprobadoTrue(String nombreIngrediente);
-    Optional<Receta> findByNombreRecetaAndUsuario_IdUsuario(String nombreReceta, Integer idUsuario);
+    
     List<Receta> findTop3ByOrderByFechaCreacionDesc();
+    List<Receta> findByNombreRecetaContainingIgnoreCaseAndAprobadoTrue(String nombreReceta, Sort sort);
+    List<Receta> findByTipoReceta_IdTipoAndAprobadoTrue(Integer idTipo, Sort sort);
+    List<Receta> findByUsuario_IdUsuario(Integer idUsuario, Sort sort);
+    List<Receta> findByIngredientes_NombreIgnoreCaseAndAprobadoTrue(String nombreIngrediente, Sort sort);
+    List<Receta> findByIngredientes_NombreNotContainingIgnoreCaseAndAprobadoTrue(String nombreIngrediente, Sort sort);
+    List<Receta> findByAprobadoTrue();
+    Optional<Receta> findByNombreRecetaAndUsuario_IdUsuario(String nombreReceta, Integer idUsuario);
 }

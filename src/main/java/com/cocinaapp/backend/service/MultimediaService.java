@@ -30,4 +30,8 @@ public class MultimediaService {
     public void eliminarMultimedia(Integer id) {
         multimediaRepository.deleteById(id);
     }
+
+    public List<Multimedia> obtenerPorPaso(Integer idPaso) {
+    return multimediaRepository.findByPaso_IdPaso(idPaso);
+    }
 }

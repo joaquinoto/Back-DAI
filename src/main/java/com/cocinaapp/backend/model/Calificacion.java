@@ -24,7 +24,7 @@ public class Calificacion {
     private Receta receta;
 
     @Column(name = "calificacion", nullable = false)
-    private Integer calificacion;  // Si es un valor numérico, este campo es adecuado.
+    private Integer calificacion;  
 
     @Column(name = "comentarios", length = 500)
     private String comentarios;
