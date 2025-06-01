@@ -43,7 +43,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/registro/completar")
-public ResponseEntity<String> completarRegistro(
+    public ResponseEntity<String> completarRegistro(
         @RequestParam String email,
         @RequestParam String codigo,
         @RequestParam(defaultValue = "false") boolean esAlumno,

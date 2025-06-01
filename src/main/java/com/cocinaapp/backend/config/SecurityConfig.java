@@ -31,15 +31,19 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Endpoints públicos (visitantes)
+                // Endpoints públicos (VISITANTE)
                 .requestMatchers(
                     "/api/auth/**",
                     "/api/usuarios/login",
                     "/api/usuarios/registro/**",
+                    "/api/usuarios/recuperar/**",
+                    "/api/usuarios/sugerir-alias",
+                    "/api/usuarios/liberar-mail",
                     "/api/recetas/ultimas",
                     "/api/recetas/buscar/**",
                     "/api/recetas/{id}",
                     "/api/recetas",
+                    "/api/recetas/{idReceta}/escalar-visual",
                     "/api/cursos",
                     "/api/cursos/{id}",
                     "/api/tiposReceta",
@@ -51,9 +55,9 @@ public class SecurityConfig {
                     "/api/sedes",
                     "/api/sedes/{id}"
                 ).permitAll()
-                // Permitir aprobar recetas antes que la regla general de recetas
+
                 .requestMatchers("/api/recetas/aprobar/**").hasRole("ADMIN")
-                // Endpoints solo para usuarios autenticados (USUARIO o ALUMNO)
+
                 .requestMatchers(
                     "/api/recetas/**",
                     "/api/calificaciones/**",
@@ -61,13 +65,26 @@ public class SecurityConfig {
                     "/api/pasos/**",
                     "/api/utilizados/**",
                     "/api/multimedia/**",
-                    "/api/conversiones/**"
-                ).hasAnyRole("USUARIO", "ALUMNO")
+                    "/api/conversiones/**",
+                    "/api/recetas-guardadas/**"
+                ).hasAnyRole("USUARIO", "ALUMNO", "ADMIN")
+
                 .requestMatchers(
                     "/api/alumnos/**",
                     "/api/asistencias/**",
+                    "/api/cursos/inscribir",
+                    "/api/cursos/baja",
+                    "/api/cursos/inscriptos",
+                    "/api/cursos/registrar-asistencia",
+                    "/api/cursos/historial-asistencia",
+                    "/api/cursos/aprobacion",
                     "/api/cronogramas/**"
-                ).hasRole("ALUMNO")
+                ).hasAnyRole("ALUMNO", "ADMIN")
+
+                // Solo ADMIN puede crear admins de desarrollo
+                .requestMatchers("/api/usuarios/registro/admin-dev").hasRole("ADMIN")
+
+                // Cualquier otra request requiere autenticación
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);

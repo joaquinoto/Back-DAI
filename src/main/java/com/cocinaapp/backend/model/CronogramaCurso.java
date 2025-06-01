@@ -23,6 +23,9 @@ public class CronogramaCurso {
     @JoinColumn(name = "idCurso", nullable = false)
     private Curso curso;
 
+    @Column(name = "cantidadClases")
+    private Integer cantidadClases;
+
     @Column(name = "fechaInicio")
     private LocalDate fechaInicio;
 

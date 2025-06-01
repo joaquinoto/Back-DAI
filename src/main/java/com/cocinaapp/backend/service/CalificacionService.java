@@ -5,6 +5,8 @@ import com.cocinaapp.backend.repository.CalificacionRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -29,8 +31,8 @@ public class CalificacionService {
     }
 
     public Calificacion agregarCalificacion(Calificacion calificacion) {
-        calificacion.setAprobado(false); // Los comentarios deben ser aprobados por la empresa
-        calificacion.setFecha(java.time.LocalDateTime.now());
+        calificacion.setFecha(LocalDateTime.now());
+        calificacion.setAprobado(false);
         return calificacionRepository.save(calificacion);
     }
 }

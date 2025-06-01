@@ -22,8 +22,11 @@ public class RecetaController {
     }
 
     @GetMapping("/usuario/{idUsuario}")
-    public ResponseEntity<List<Receta>> obtenerPorUsuario(@PathVariable Integer idUsuario) {
-        return ResponseEntity.ok(recetaService.obtenerRecetasPorUsuario(idUsuario));
+    public ResponseEntity<List<Receta>> obtenerPorUsuario(
+            @PathVariable Integer idUsuario,
+            @RequestParam(required = false, defaultValue = "nombreReceta") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String order) {
+        return ResponseEntity.ok(recetaService.obtenerRecetasPorUsuario(idUsuario, sortBy, order));
     }
 
     @GetMapping("/{id}")
@@ -53,38 +56,49 @@ public class RecetaController {
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<List<Receta>> buscarPorNombre(@RequestParam String nombre) {
-        return ResponseEntity.ok(recetaService.buscarPorNombre(nombre));
+    public ResponseEntity<List<Receta>> buscarPorNombre(
+            @RequestParam String nombre,
+            @RequestParam(required = false, defaultValue = "nombreReceta") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String order) {
+        return ResponseEntity.ok(recetaService.buscarPorNombre(nombre, sortBy, order));
     }
 
     @GetMapping("/tipo/{idTipo}")
-    public ResponseEntity<List<Receta>> buscarPorTipo(@PathVariable Integer idTipo) {
-        return ResponseEntity.ok(recetaService.buscarPorTipo(idTipo));
+    public ResponseEntity<List<Receta>> buscarPorTipo(
+            @PathVariable Integer idTipo,
+            @RequestParam(required = false, defaultValue = "nombreReceta") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String order) {
+        return ResponseEntity.ok(recetaService.buscarPorTipo(idTipo, sortBy, order));
     }
 
     @GetMapping("/ingrediente")
-    public ResponseEntity<List<Receta>> buscarPorIngrediente(@RequestParam String nombreIngrediente) {
-        return ResponseEntity.ok(recetaService.buscarPorIngrediente(nombreIngrediente));
+    public ResponseEntity<List<Receta>> buscarPorIngrediente(
+            @RequestParam String nombreIngrediente,
+            @RequestParam(required = false, defaultValue = "nombreReceta") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String order) {
+        return ResponseEntity.ok(recetaService.buscarPorIngrediente(nombreIngrediente, sortBy, order));
     }
 
     @GetMapping("/sin-ingrediente")
-    public ResponseEntity<List<Receta>> buscarSinIngrediente(@RequestParam String nombreIngrediente) {
-        return ResponseEntity.ok(recetaService.buscarSinIngrediente(nombreIngrediente));
+    public ResponseEntity<List<Receta>> buscarSinIngrediente(
+            @RequestParam String nombreIngrediente,
+            @RequestParam(required = false, defaultValue = "nombreReceta") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String order) {
+        return ResponseEntity.ok(recetaService.buscarSinIngrediente(nombreIngrediente, sortBy, order));
     }
 
-    // Endpoint para aprobar receta (solo admin)
+    
     @PutMapping("/aprobar/{idReceta}")
-    // @PreAuthorize("hasRole('ADMIN')") // Descomenta si usas seguridad por roles
     public ResponseEntity<?> aprobarReceta(@PathVariable Integer idReceta) {
         recetaService.aprobarReceta(idReceta);
         return ResponseEntity.ok("Receta aprobada y publicada.");
     }
 
-    @GetMapping("/{idReceta}/escalar")
-    public ResponseEntity<Receta> escalarReceta(
+    @GetMapping("/{idReceta}/escalar-visual")
+    public ResponseEntity<Receta> escalarRecetaVisual(
             @PathVariable int idReceta,
             @RequestParam int porciones) {
-        Receta recetaEscalada = recetaService.escalarReceta(idReceta, porciones);
+        Receta recetaEscalada = recetaService.escalarRecetaVisual(idReceta, porciones);
         return ResponseEntity.ok(recetaEscalada);
     }
 

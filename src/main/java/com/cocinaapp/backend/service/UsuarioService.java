@@ -37,7 +37,6 @@ public class UsuarioService {
     @Autowired
     private com.cocinaapp.backend.repository.AlumnoRepository alumnoRepository;
 
-    // Primera etapa: iniciar registro
     public String iniciarRegistro(String email, String alias) {
         if (usuarioRepository.findByMail(email).isPresent()) {
             throw new IllegalArgumentException("El mail ya está registrado. ¿Olvidaste tu clave?");
@@ -57,12 +56,15 @@ public class UsuarioService {
         codigoValidacion.setEmail(email);
         codigoValidacion.setCodigo(codigo);
         codigoValidacion.setFechaExpiracion(ahora.plusHours(24));
+        codigoValidacion.setTipo("REGISTRO");
         codigoValidacion.setFechaCreacion(ahora);
         codigoValidacion.setUsado(false);
         codigoValidacionRepository.save(codigoValidacion);
 
         enviarCorreo(email, "Código de validación",
             "<h3>Tu código de validación es:</h3><p><b>" + codigo + "</b></p>");
+
+        System.out.println("CÓDIGO DE VALIDACIÓN PARA " + email + ": " + codigo);
 
         return "Código enviado al correo: " + email;
     }
@@ -79,7 +81,6 @@ public class UsuarioService {
         }
 
         if (esAlumno) {
-            // Validar datos obligatorios de alumno
             if (
                 usuario.getNombre() == null || usuario.getContrasena() == null ||
                 alumno == null ||
@@ -98,7 +99,6 @@ public class UsuarioService {
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
-        // Si es alumno, guardar también en la tabla alumnos
         if (esAlumno) {
             alumno.setIdAlumno(usuarioGuardado.getIdUsuario());
             alumno.setCuentaCorriente(0.0);
@@ -113,7 +113,6 @@ public class UsuarioService {
         return true;
     }
 
-    // Sugerir alias que no estén en uso ni en validación pendiente
     public List<String> sugerirAliasDisponibles(String alias) {
         List<String> posibles = List.of(alias + "123", alias + "_user", alias + "2025");
         return posibles.stream()
@@ -141,7 +140,6 @@ public class UsuarioService {
             throw new IllegalArgumentException("El mail no está registrado.");
         }
 
-        // Invalida códigos anteriores de recuperación
         codigoValidacionRepository.findAllByEmailAndUsadoFalse(email)
             .stream()
             .filter(c -> "RECUPERACION".equals(c.getTipo()))
@@ -203,7 +201,6 @@ public class UsuarioService {
         throw new IllegalArgumentException("El usuario ya es alumno.");
     }
 
-    // Validar datos obligatorios
     if (datosAlumno.getNumeroTarjeta() == null ||
         datosAlumno.getDniFrente() == null ||
         datosAlumno.getDniFondo() == null ||
@@ -230,4 +227,8 @@ public class UsuarioService {
         codigoValidacionRepository.save(c);
     });
 }
+
+    public boolean esAlumno(Integer idUsuario) {
+    return alumnoRepository.findById(idUsuario).isPresent();
+    }
 }

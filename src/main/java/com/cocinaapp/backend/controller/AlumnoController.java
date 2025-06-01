@@ -1,6 +1,8 @@
 package com.cocinaapp.backend.controller;
 
 import com.cocinaapp.backend.model.Alumno;
+import com.cocinaapp.backend.model.PagoCurso;
+import com.cocinaapp.backend.repository.PagoCursoRepository;
 import com.cocinaapp.backend.service.AlumnoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,10 @@ public class AlumnoController {
 
     @Autowired
     private AlumnoService alumnoService;
+
+    @Autowired
+    private PagoCursoRepository pagoCursoRepository;
+
 
     @PreAuthorize("hasRole('ALUMNO')")
     @GetMapping
@@ -48,5 +54,18 @@ public class AlumnoController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/{id}/cuenta-corriente")
+    public ResponseEntity<Double> obtenerCuentaCorriente(@PathVariable Integer id) {
+        return alumnoService.obtenerAlumnoPorId(id)
+            .map(alumno -> ResponseEntity.ok(alumno.getCuentaCorriente()))
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/movimientos-cuenta")
+    public ResponseEntity<List<PagoCurso>> obtenerMovimientosCuenta(@PathVariable Integer id) {
+        List<PagoCurso> movimientos = pagoCursoRepository.findByAlumno_IdAlumno(id);
+        return ResponseEntity.ok(movimientos);
     }
 }

@@ -29,4 +29,20 @@ public class AsistenciaCurso {
     @Column(name = "fechaBaja")
     private LocalDateTime fechaBaja;
 
+    @Column(name = "aprobado")
+private Boolean aprobado = false;
+    @Column(name = "asistencia")
+    private Boolean asistencia = false;
+
+    @Column(name = "observaciones", length = 500)
+    private String observaciones;
+
+    @Column(name = "fechaCreacion", updatable = false)
+    @org.hibernate.annotations.CreationTimestamp
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "fechaModificacion")
+    @org.hibernate.annotations.UpdateTimestamp
+    private LocalDateTime fechaModificacion;
+
 }

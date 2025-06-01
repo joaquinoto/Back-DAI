@@ -40,4 +40,9 @@ public class MultimediaController {
         multimediaService.eliminarMultimedia(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/paso/{idPaso}")
+    public ResponseEntity<List<Multimedia>> obtenerPorPaso(@PathVariable Integer idPaso) {
+        return ResponseEntity.ok(multimediaService.obtenerPorPaso(idPaso));
+    }
 }

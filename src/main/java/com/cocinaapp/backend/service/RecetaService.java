@@ -4,6 +4,8 @@ import com.cocinaapp.backend.model.Ingrediente;
 import com.cocinaapp.backend.model.Receta;
 import com.cocinaapp.backend.repository.RecetaRepository;
 
+import org.springframework.data.domain.Sort;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +23,6 @@ public class RecetaService {
         return recetaRepository.findByAprobadoTrue();
     }
 
-    public List<Receta> obtenerRecetasPorUsuario(Integer idUsuario) {
-        return recetaRepository.findByUsuario_IdUsuario(idUsuario);
-    }
-
     public Optional<Receta> obtenerRecetaPorId(Integer id) {
         return recetaRepository.findById(id);
     }
@@ -37,24 +35,29 @@ public class RecetaService {
         recetaRepository.deleteById(id);
     }
 
-    public List<Receta> buscarPorNombre(String nombre) {
-        return recetaRepository.findByNombreRecetaContainingIgnoreCaseAndAprobadoTrue(nombre);
+    public List<Receta> buscarPorNombre(String nombre, String sortBy, String order) {
+    Sort sort = Sort.by(order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+    return recetaRepository.findByNombreRecetaContainingIgnoreCaseAndAprobadoTrue(nombre, sort);
     }
 
-    public List<Receta> buscarPorTipo(Integer idTipo) {
-        return recetaRepository.findByTipoReceta_IdTipoAndAprobadoTrue(idTipo);
+    public List<Receta> buscarPorTipo(Integer idTipo, String sortBy, String order) {
+        Sort sort = Sort.by(order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        return recetaRepository.findByTipoReceta_IdTipoAndAprobadoTrue(idTipo, sort);
+    }   
+
+    public List<Receta> buscarPorIngrediente(String nombreIngrediente, String sortBy, String order) {
+        Sort sort = Sort.by(order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        return recetaRepository.findByIngredientes_NombreIgnoreCaseAndAprobadoTrue(nombreIngrediente, sort);
     }
 
-    public List<Receta> buscarPorUsuario(Integer idUsuario) {
-        return recetaRepository.findByUsuario_IdUsuario(idUsuario);
+    public List<Receta> buscarSinIngrediente(String nombreIngrediente, String sortBy, String order) {
+        Sort sort = Sort.by(order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        return recetaRepository.findByIngredientes_NombreNotContainingIgnoreCaseAndAprobadoTrue(nombreIngrediente, sort);
     }
 
-    public List<Receta> buscarPorIngrediente(String nombreIngrediente) {
-        return recetaRepository.findByIngredientes_NombreIgnoreCaseAndAprobadoTrue(nombreIngrediente);
-    }
-
-    public List<Receta> buscarSinIngrediente(String nombreIngrediente) {
-        return recetaRepository.findByIngredientes_NombreNotIgnoreCaseAndAprobadoTrue(nombreIngrediente);
+    public List<Receta> obtenerRecetasPorUsuario(Integer idUsuario, String sortBy, String order) {
+        Sort sort = Sort.by(order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        return recetaRepository.findByUsuario_IdUsuario(idUsuario, sort);
     }
 
    
@@ -83,7 +86,7 @@ public class RecetaService {
         recetaRepository.save(receta);
     }
 
-    public Receta escalarReceta(int idReceta, int porcionesDeseadas) {
+public Receta escalarRecetaVisual(int idReceta, int porcionesDeseadas) {
     Receta receta = recetaRepository.findById(idReceta)
         .orElseThrow(() -> new IllegalArgumentException("Receta no encontrada"));
 
@@ -96,7 +99,7 @@ public class RecetaService {
     recetaEscalada.setNombreReceta(receta.getNombreReceta());
     recetaEscalada.setPorciones(porcionesDeseadas);
     recetaEscalada.setDescripcionReceta(receta.getDescripcionReceta());
-    
+
     List<Ingrediente> ingredientesEscalados = new ArrayList<>();
     for (Ingrediente ing : receta.getIngredientes()) {
         Ingrediente ingEscalado = new Ingrediente();
@@ -108,7 +111,7 @@ public class RecetaService {
     recetaEscalada.setIngredientes(ingredientesEscalados);
 
     return recetaEscalada;
-}
+    }
 
     public List<Receta> obtenerUltimasTresRecetas() {
         return recetaRepository.findTop3ByOrderByFechaCreacionDesc();

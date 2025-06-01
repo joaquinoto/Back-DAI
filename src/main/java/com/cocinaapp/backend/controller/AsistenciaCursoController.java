@@ -61,5 +61,13 @@ public class AsistenciaCursoController {
         List<RegistroAsistencia> historial = asistenciaCursoService
             .obtenerHistorialAsistencia(asistencia.getIdAsistencia());
         return ResponseEntity.ok(historial);
-}
+    }
+
+    @GetMapping("/aprobacion")
+    public ResponseEntity<Boolean> aprobarCursoPorAsistencia(
+            @RequestParam int idAlumno,
+            @RequestParam int idCronograma) {
+        boolean aprobado = asistenciaCursoService.aprobarCursoPorAsistencia(idAlumno, idCronograma);
+        return ResponseEntity.ok(aprobado);
+    }
 }
