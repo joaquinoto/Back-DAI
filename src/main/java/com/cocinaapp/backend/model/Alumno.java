@@ -30,6 +30,7 @@ public class Alumno {
     private double cuentaCorriente;
 
     @OneToOne
+    @MapsId
     @JoinColumn(name = "idAlumno")
     private Usuario usuario;
 }

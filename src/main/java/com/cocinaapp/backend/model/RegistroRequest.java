@@ -4,6 +4,9 @@ import lombok.Data;
 
 @Data
 public class RegistroRequest {
+    private String email;
+    private String codigo;
     private Usuario usuario;
-    private Alumno alumno; // Puede ser null si esAlumno es false
+    private Alumno alumno;
+    private boolean esAlumno;
 }

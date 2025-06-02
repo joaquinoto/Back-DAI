@@ -43,24 +43,20 @@ public class UsuarioController {
     }
 
     @PostMapping("/registro/completar")
-    public ResponseEntity<String> completarRegistro(
-        @RequestParam String email,
-        @RequestParam String codigo,
-        @RequestParam(defaultValue = "false") boolean esAlumno,
-        @RequestBody RegistroRequest registroRequest) {
-    try {
-        boolean exito = usuarioService.completarRegistro(
-            email,
-            codigo,
-            registroRequest.getUsuario(),
-            registroRequest.getAlumno(),
-            esAlumno
-        );
-        return exito ? ResponseEntity.ok("Registro completado con éxito.") : ResponseEntity.badRequest().body("Error en el registro.");
-    } catch (IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<String> completarRegistro(@RequestBody RegistroRequest registroRequest) {
+        try {
+            boolean exito = usuarioService.completarRegistro(
+                registroRequest.getEmail(),
+                registroRequest.getCodigo(),
+                registroRequest.getUsuario(),
+                registroRequest.getAlumno(),
+                registroRequest.isEsAlumno()
+            );
+            return exito ? ResponseEntity.ok("Registro completado con éxito.") : ResponseEntity.badRequest().body("Error en el registro.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
-}
 
     @PostMapping("/recuperar/solicitar")
     public ResponseEntity<String> solicitarRecuperacion(@RequestParam String email) {

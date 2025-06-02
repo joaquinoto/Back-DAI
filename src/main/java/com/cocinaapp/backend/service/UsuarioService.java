@@ -100,11 +100,10 @@ public class UsuarioService {
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
         if (esAlumno) {
-            alumno.setIdAlumno(usuarioGuardado.getIdUsuario());
-            alumno.setCuentaCorriente(0.0);
-            alumno.setUsuario(usuarioGuardado);
-            alumnoRepository.save(alumno);
-        }
+        alumno.setUsuario(usuarioGuardado); 
+        alumno.setCuentaCorriente(0.0);
+        alumnoRepository.save(alumno);
+    }
 
         CodigoValidacion cod = validacion.get();
         cod.setUsado(true);
