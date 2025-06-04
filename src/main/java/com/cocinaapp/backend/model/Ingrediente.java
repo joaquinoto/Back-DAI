@@ -22,11 +22,12 @@ public class Ingrediente {
     @Column(name = "cantidad")
     private Double cantidad;
 
-    @Column(name = "unidad", length = 50)
-    private String unidad;
-
     @ManyToOne
     @JoinColumn(name = "idReceta")
     @JsonBackReference
     private Receta receta;
+
+    @ManyToOne
+    @JoinColumn(name = "idUnidad")
+    private Unidad unidad;
 }

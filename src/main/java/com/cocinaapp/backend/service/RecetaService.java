@@ -2,7 +2,9 @@ package com.cocinaapp.backend.service;
 
 import com.cocinaapp.backend.model.Ingrediente;
 import com.cocinaapp.backend.model.Receta;
+import com.cocinaapp.backend.model.Usuario;
 import com.cocinaapp.backend.repository.RecetaRepository;
+import com.cocinaapp.backend.repository.UsuarioRepository;
 
 import org.springframework.data.domain.Sort;
 
@@ -18,6 +20,9 @@ public class RecetaService {
 
     @Autowired
     private RecetaRepository recetaRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     public List<Receta> obtenerTodasLasRecetasAprobadas() {
         return recetaRepository.findByAprobadoTrue();
@@ -62,21 +67,25 @@ public class RecetaService {
 
    
     public void crearOActualizarReceta(Receta receta, int idUsuario, boolean reemplazar) {
-        Optional<Receta> existente = recetaRepository.findByNombreRecetaAndUsuario_IdUsuario(receta.getNombreReceta(), idUsuario);
+    Optional<Receta> existente = recetaRepository.findByNombreRecetaAndUsuario_IdUsuario(receta.getNombreReceta(), idUsuario);
 
-        if (existente.isPresent()) {
-            if (reemplazar) {
-                receta.setIdReceta(existente.get().getIdReceta()); // Sobrescribe la existente
-                receta.setAprobado(false); // Requiere nueva aprobación
-                recetaRepository.save(receta);
-            } else {
-                throw new IllegalArgumentException("Ya tienes una receta con ese nombre. ¿Deseas reemplazarla o editarla?");
-            }
-        } else {
-            
-            receta.setAprobado(false); // Siempre requiere aprobación
+    // Asignar el usuario a la receta
+    Usuario usuario = usuarioRepository.findById(idUsuario)
+        .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    receta.setUsuario(usuario);
+
+    if (existente.isPresent()) {
+        if (reemplazar) {
+            receta.setIdReceta(existente.get().getIdReceta()); // Sobrescribe la existente
+            receta.setAprobado(false); // Requiere nueva aprobación
             recetaRepository.save(receta);
+        } else {
+            throw new IllegalArgumentException("Ya tienes una receta con ese nombre. ¿Deseas reemplazarla o editarla?");
         }
+    } else {
+        receta.setAprobado(false); // Siempre requiere aprobación
+        recetaRepository.save(receta);
+    }
     }
 
     public void aprobarReceta(Integer idReceta) {
