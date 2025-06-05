@@ -123,6 +123,6 @@ public Receta escalarRecetaVisual(int idReceta, int porcionesDeseadas) {
     }
 
     public List<Receta> obtenerUltimasTresRecetas() {
-        return recetaRepository.findTop3ByOrderByFechaCreacionDesc();
+        return recetaRepository.findTop3ByAprobadoTrueOrderByFechaCreacionDesc();
     }
 }

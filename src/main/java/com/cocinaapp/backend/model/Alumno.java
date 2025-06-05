@@ -17,11 +17,11 @@ public class Alumno {
     @Column(name = "numeroTarjeta", length = 12)
     private String numeroTarjeta;
 
-    @Column(name = "dniFrente", length = 300)
-    private String dniFrente;
+    @Column(name = "dniFrente", columnDefinition = "LONGBLOB")
+    private byte[] dniFrente;
 
-    @Column(name = "dniFondo", length = 300)
-    private String dniFondo;
+    @Column(name = "dniFondo", columnDefinition = "LONGBLOB")
+    private byte[] dniFondo;
 
     @Column(name = "tramite", length = 12)
     private String tramite;

@@ -30,8 +30,8 @@ public class Usuario {
     @Column(name = "direccion", length = 150)
     private String direccion;
 
-    @Column(name = "avatar", length = 300)
-    private String avatar;
+    @Column(name = "avatar", columnDefinition = "LONGBLOB")
+    private byte[] avatar;
 
     @Column(name= "contrasena", nullable = false, length = 300)
     private String contrasena;
