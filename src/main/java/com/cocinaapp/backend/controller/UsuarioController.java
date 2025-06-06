@@ -45,6 +45,10 @@ public class UsuarioController {
     @PostMapping("/registro/completar")
     public ResponseEntity<String> completarRegistro(@RequestBody RegistroRequest registroRequest) {
         try {
+            System.out.println("DEBUG UsuarioController: Avatar en usuario (controller): " +
+                (registroRequest.getUsuario() != null && registroRequest.getUsuario().getAvatar() != null
+                    ? registroRequest.getUsuario().getAvatar().length
+                    : "null"));
             boolean exito = usuarioService.completarRegistro(
                 registroRequest.getEmail(),
                 registroRequest.getCodigo(),
@@ -140,13 +144,35 @@ public class UsuarioController {
         return ResponseEntity.ok(Map.of(
             "token", token,
             "usuario", user.getNickname(),
-            "rol", user.getRol()
+            "rol", user.getRol(),
+            "id", user.getIdUsuario()
         ));
     }
 
     @GetMapping("/sugerir-alias")
     public ResponseEntity<List<String>> sugerirAliasDisponibles(@RequestParam String alias) {
         return ResponseEntity.ok(usuarioService.sugerirAliasDisponibles(alias));
+    }
+    @GetMapping("/{id}/avatar")
+    public ResponseEntity<byte[]> obtenerAvatar(@PathVariable int id) {
+        return usuarioService.obtenerAvatarPorId(id)
+                .filter(avatar -> avatar != null)
+                .map(avatar -> ResponseEntity.ok()
+                        .header("Content-Type", "image/jpeg") 
+                        .body(avatar))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}/perfil")
+    public ResponseEntity<?> actualizarPerfil(
+            @PathVariable int id,
+            @RequestBody Map<String, Object> updates) {
+        try {
+            usuarioService.actualizarPerfil(id, updates);
+            return ResponseEntity.ok("Perfil actualizado correctamente.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 }

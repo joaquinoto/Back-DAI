@@ -16,6 +16,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -70,6 +71,10 @@ public class UsuarioService {
     }
 
         public boolean completarRegistro(String email, String codigo, Usuario usuario, Alumno alumno, boolean esAlumno) {
+        
+        System.out.println("DEBUG UsuarioService: Avatar en usuario (service): " +
+            (usuario.getAvatar() != null ? usuario.getAvatar().length : "null"));
+        
         Optional<CodigoValidacion> validacion = codigoValidacionRepository.findAllByEmailAndUsadoFalse(email)
             .stream().findFirst();
 
@@ -225,9 +230,42 @@ public class UsuarioService {
         c.setUsado(true);
         codigoValidacionRepository.save(c);
     });
-}
+    }
 
     public boolean esAlumno(Integer idUsuario) {
     return alumnoRepository.findById(idUsuario).isPresent();
+    }
+
+    public Optional<byte[]> obtenerAvatarPorId(int id) {
+        return usuarioRepository.findById(id)
+                .map(usuario -> usuario.getAvatar());
+    }
+
+    public void actualizarPerfil(int id, Map<String, Object> updates) {
+    Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+    // Actualizar nombre si viene
+    if (updates.containsKey("nombre")) {
+        usuario.setNombre((String) updates.get("nombre"));
+    }
+    // Actualizar avatar si viene (debe ser base64 puro)
+    if (updates.containsKey("avatar")) {
+        Object avatarObj = updates.get("avatar");
+        if (avatarObj instanceof String) {
+            String avatarStr = (String) avatarObj;
+            if (avatarStr.isEmpty()) {
+                usuario.setAvatar(null);
+            } else {
+                usuario.setAvatar(java.util.Base64.getDecoder().decode(avatarStr));
+            }
+        }
+    }
+    // Actualizar rol si viene
+    if (updates.containsKey("rol")) {
+        usuario.setRol(((String) updates.get("rol")).toUpperCase());
+    }
+
+    usuarioRepository.save(usuario);
     }
 }

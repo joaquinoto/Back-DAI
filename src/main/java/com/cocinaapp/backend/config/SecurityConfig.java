@@ -48,6 +48,7 @@ public class SecurityConfig {
                     "/api/usuarios/recuperar/**",
                     "/api/usuarios/sugerir-alias",
                     "/api/usuarios/liberar-mail",
+                    "/api/usuarios/*/avatar",
                     "/api/recetas/ultimas",
                     "/api/recetas/buscar/**",
                     "/api/cursos",
