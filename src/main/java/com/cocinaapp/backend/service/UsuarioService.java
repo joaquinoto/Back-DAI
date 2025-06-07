@@ -144,16 +144,21 @@ public class UsuarioService {
             throw new IllegalArgumentException("El mail no está registrado.");
         }
 
+        // Marcar como usados TODOS los códigos de recuperación activos para este email
         codigoValidacionRepository.findAllByEmailAndUsadoFalse(email)
             .stream()
             .filter(c -> "RECUPERACION".equals(c.getTipo()))
-            .findFirst()
-            .ifPresent(c -> {
+            .forEach(c -> {
                 c.setUsado(true);
                 codigoValidacionRepository.save(c);
             });
 
-        String codigo = UUID.randomUUID().toString().substring(0, 8);
+        // Generar un código único
+        String codigo;
+        do {
+            codigo = UUID.randomUUID().toString().substring(0, 8);
+        } while (codigoValidacionRepository.existsByCodigoAndTipo(codigo, "RECUPERACION"));
+
         LocalDateTime ahora = LocalDateTime.now();
 
         CodigoValidacion codigoValidacion = new CodigoValidacion();

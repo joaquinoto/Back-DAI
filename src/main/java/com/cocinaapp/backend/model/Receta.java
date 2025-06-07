@@ -28,8 +28,8 @@ public class Receta {
     @Column(name = "descripcionReceta", length = 1000)
     private String descripcionReceta;
 
-    @Column(name = "fotoPrincipal", length = 300)
-    private String fotoPrincipal;
+    @Column(name = "fotoPrincipal", columnDefinition = "LONGBLOB")
+    private byte[] fotoPrincipal;
 
     @Column(name = "porciones")
     private Integer porciones;

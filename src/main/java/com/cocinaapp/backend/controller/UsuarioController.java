@@ -1,16 +1,21 @@
 package com.cocinaapp.backend.controller;
 
 import com.cocinaapp.backend.model.Alumno;
+import com.cocinaapp.backend.model.CodigoValidacion;
 import com.cocinaapp.backend.model.LoginRequest;
 import com.cocinaapp.backend.model.RegistroRequest;
 import com.cocinaapp.backend.model.Usuario;
+import com.cocinaapp.backend.repository.CodigoValidacionRepository;
 import com.cocinaapp.backend.security.JwtService;
 import com.cocinaapp.backend.service.UsuarioService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -173,6 +178,40 @@ public class UsuarioController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @Autowired
+private CodigoValidacionRepository codigoValidacionRepository;
+
+    @PostMapping("/registro/verificar-codigo")
+    public ResponseEntity<?> verificarCodigo(
+            @RequestParam String email,
+            @RequestParam String codigo
+    ) {
+        java.util.Optional<CodigoValidacion> validacionOpt = codigoValidacionRepository.findAllByEmailAndUsadoFalse(email)
+            .stream().findFirst();
+
+        if (validacionOpt.isEmpty() || !validacionOpt.get().getCodigo().equals(codigo)) {
+            return ResponseEntity.status(400).body("Código inválido o expirado.");
+        }
+        CodigoValidacion validacion = validacionOpt.get();
+        if (validacion.getFechaExpiracion().isBefore(java.time.LocalDateTime.now())) {
+            return ResponseEntity.status(400).body("El código ha expirado.");
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/recuperar/verificar-codigo")
+    public ResponseEntity<?> verificarCodigoRecuperacion(@RequestParam String email, @RequestParam String codigo) {
+        Optional<CodigoValidacion> validacion = codigoValidacionRepository.findAllByEmailAndUsadoFalse(email)
+            .stream()
+            .filter(c -> "RECUPERACION".equals(c.getTipo()) && c.getCodigo().equals(codigo))
+            .findFirst();
+
+        if (validacion.isEmpty() || validacion.get().getFechaExpiracion().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Código inválido o expirado.");
+        }
+        return ResponseEntity.ok().build();
     }
 
 }

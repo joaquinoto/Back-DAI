@@ -23,9 +23,10 @@ public class JwtAuthenticationFilter extends GenericFilter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String path = ((HttpServletRequest) request).getRequestURI();
+        String path = httpRequest.getRequestURI();
         if (path.startsWith("/api/usuarios/login") ||
             path.startsWith("/api/usuarios/registro") ||
+            path.startsWith("/api/usuarios/recuperar") || // <-- AGREGA ESTA LÍNEA
             path.startsWith("/api/auth")) {
             chain.doFilter(request, response);
             return;

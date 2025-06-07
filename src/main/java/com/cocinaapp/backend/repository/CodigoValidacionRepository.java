@@ -13,4 +13,5 @@ public interface CodigoValidacionRepository extends JpaRepository<CodigoValidaci
     boolean existsByEmailAndUsadoFalse(String email);
     boolean existsByAliasAndUsadoFalse(String alias);
     List<CodigoValidacion> findAllByEmailAndUsadoFalse(String email);
+    boolean existsByCodigoAndTipo(String codigo, String tipo);
 }
