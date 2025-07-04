@@ -23,6 +23,9 @@ public class CronogramaCurso {
     @JoinColumn(name = "idCurso", nullable = false)
     private Curso curso;
 
+    @Column(name = "horario", nullable = false, length = 100)
+    private String horario;
+
     @Column(name = "cantidadClases")
     private Integer cantidadClases;
 
@@ -34,4 +37,6 @@ public class CronogramaCurso {
 
     @Column(name = "vacantesDisponibles")
     private Integer vacantesDisponibles;
+
+
 }

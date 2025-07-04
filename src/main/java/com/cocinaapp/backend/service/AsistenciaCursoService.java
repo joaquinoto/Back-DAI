@@ -6,6 +6,7 @@ import com.cocinaapp.backend.model.CronogramaCurso;
 import com.cocinaapp.backend.model.RegistroAsistencia;
 import com.cocinaapp.backend.model.PagoCurso;
 import com.cocinaapp.backend.model.Promocion;
+import com.cocinaapp.backend.model.CuentaCorriente;
 import com.cocinaapp.backend.repository.AlumnoRepository;
 import com.cocinaapp.backend.repository.AsistenciaCursoRepository;
 import com.cocinaapp.backend.repository.CronogramaCursoRepository;
@@ -38,6 +39,8 @@ public class AsistenciaCursoService {
     private PagoCursoRepository pagoCursoRepository;
     @Autowired
     private PromocionRepository promocionRepository;
+    @Autowired
+    private CuentaCorrienteService cuentaCorrienteService;
 
    
     public double calcularPrecioFinal(Integer idCurso, Integer idSede, double precioBase) {
@@ -58,6 +61,11 @@ public class AsistenciaCursoService {
         CronogramaCurso cronograma = cronogramaCursoRepository.findById(idCronograma)
                 .orElseThrow(() -> new IllegalArgumentException("Cronograma no encontrado"));
 
+        // Validar vacantes disponibles
+        if (cronograma.getVacantesDisponibles() == null || cronograma.getVacantesDisponibles() <= 0) {
+            throw new IllegalArgumentException("No hay vacantes disponibles para este cronograma.");
+        }
+
         // Lógica de pago con promoción
         double precioBase = cronograma.getCurso().getPrecio();
         double monto = calcularPrecioFinal(cronograma.getCurso().getIdCurso(), cronograma.getSede().getIdSede(), precioBase);
@@ -71,16 +79,27 @@ public class AsistenciaCursoService {
         pagoCursoRepository.save(pago);
 
         // Disminuir vacantes
-        if (cronograma.getVacantesDisponibles() != null && cronograma.getVacantesDisponibles() > 0) {
-            cronograma.setVacantesDisponibles(cronograma.getVacantesDisponibles() - 1);
-            cronogramaCursoRepository.save(cronograma);
-        }
+        cronograma.setVacantesDisponibles(cronograma.getVacantesDisponibles() - 1);
+        cronogramaCursoRepository.save(cronograma);
 
         AsistenciaCurso asistencia = new AsistenciaCurso();
         asistencia.setAlumno(alumno);
         asistencia.setCronogramaCurso(cronograma);
         asistencia.setFecha(LocalDateTime.now());
-        asistenciaCursoRepository.save(asistencia);
+        AsistenciaCurso asistenciaGuardada = asistenciaCursoRepository.save(asistencia);
+        
+        // Registrar movimiento en cuenta corriente
+        String descripcion = String.format("Inscripción a curso: %s - Sede: %s", 
+                                          cronograma.getCurso().getNombre(),
+                                          cronograma.getSede().getNombreSede());
+        
+        cuentaCorrienteService.registrarMovimiento(
+            idAlumno, 
+            CuentaCorriente.TipoMovimiento.DEBITO_INSCRIPCION,
+            java.math.BigDecimal.valueOf(monto),
+            descripcion,
+            asistenciaGuardada.getIdAsistencia()
+        );
     }
 
     public void bajaAlumno(int idAlumno, int idCronograma) {
@@ -119,6 +138,19 @@ public class AsistenciaCursoService {
         Alumno alumno = asistencia.getAlumno();
         alumno.setCuentaCorriente(alumno.getCuentaCorriente() + reintegro);
         alumnoRepository.save(alumno);
+        
+        // Registrar movimiento de reintegro en cuenta corriente
+        String descripcionReintegro = String.format("Reintegro por baja de curso: %s - Sede: %s", 
+                                                   cronograma.getCurso().getNombre(),
+                                                   cronograma.getSede().getNombreSede());
+        
+        cuentaCorrienteService.registrarMovimiento(
+            idAlumno, 
+            CuentaCorriente.TipoMovimiento.CREDITO_REINTEGRO,
+            java.math.BigDecimal.valueOf(reintegro),
+            descripcionReintegro,
+            asistencia.getIdAsistencia()
+        );
     }
 
     asistencia.setFechaBaja(LocalDateTime.now());

@@ -23,6 +23,10 @@ public class CronogramaCursoService {
         return cronogramaCursoRepository.findById(id);
     }
 
+    public List<CronogramaCurso> obtenerCronogramasPorCurso(Integer cursoId) {
+        return cronogramaCursoRepository.findByCurso_IdCurso(cursoId);
+    }
+
     public CronogramaCurso guardarCronograma(CronogramaCurso cronogramaCurso) {
         return cronogramaCursoRepository.save(cronogramaCurso);
     }

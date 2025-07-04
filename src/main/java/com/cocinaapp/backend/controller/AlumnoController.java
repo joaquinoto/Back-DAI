@@ -68,4 +68,10 @@ public class AlumnoController {
         List<PagoCurso> movimientos = pagoCursoRepository.findByAlumno_IdAlumno(id);
         return ResponseEntity.ok(movimientos);
     }
+
+    @GetMapping("/por-usuario/{idUsuario}")
+    public ResponseEntity<Alumno> obtenerAlumnoPorIdUsuario(@PathVariable Integer idUsuario) {
+        Optional<Alumno> alumno = alumnoService.obtenerAlumnoPorIdUsuario(idUsuario);
+        return alumno.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

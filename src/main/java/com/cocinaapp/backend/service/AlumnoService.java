@@ -23,6 +23,11 @@ public class AlumnoService {
         return alumnoRepository.findById(id);
     }
     
+    public Optional<Alumno> obtenerAlumnoPorIdUsuario(Integer idUsuario) {
+        // Como Alumno usa @MapsId, idAlumno = idUsuario
+        return alumnoRepository.findById(idUsuario);
+    }
+    
     public Alumno guardarAlumno(Alumno alumno) {
         return alumnoRepository.save(alumno);
     }

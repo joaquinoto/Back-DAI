@@ -8,4 +8,6 @@ import com.cocinaapp.backend.model.Alumno;
 @Repository
 public interface AlumnoRepository extends JpaRepository<Alumno, Integer> {
     
+    
+    
 }

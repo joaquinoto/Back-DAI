@@ -16,6 +16,9 @@ public class Curso {
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
 
+    @Column(name = "imagen", columnDefinition = "LONGBLOB")
+    private byte[] imagen;
+
     @Column(name = "descripcion", nullable = true, length = 300)
     private String descripcion;
 

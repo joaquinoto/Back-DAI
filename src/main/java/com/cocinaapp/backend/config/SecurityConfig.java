@@ -59,6 +59,7 @@ public class SecurityConfig {
                     "/api/calificaciones/receta/**",
                     "/api/cursos",
                     "/api/cursos/{id}",
+                    "/api/cursos/{id}/imagen",
                     "/api/tiposReceta",
                     "/api/tiposReceta/{id}",
                     "/api/ingredientes",
@@ -66,7 +67,9 @@ public class SecurityConfig {
                     "/api/unidades",
                     "/api/unidades/{id}",
                     "/api/sedes",
-                    "/api/sedes/{id}"
+                    "/api/sedes/{id}",
+                    "/api/cronogramas",
+                    "/api/cronogramas/**"
                 ).permitAll()
 
                 .requestMatchers("/api/recetas/aprobar/**").hasRole("ADMIN")
@@ -84,6 +87,7 @@ public class SecurityConfig {
 
                 .requestMatchers(
                     "/api/alumnos/**",
+                    "/api/cursos/*",
                     "/api/asistencias/**",
                     "/api/cursos/inscribir",
                     "/api/cursos/baja",
@@ -91,7 +95,8 @@ public class SecurityConfig {
                     "/api/cursos/registrar-asistencia",
                     "/api/cursos/historial-asistencia",
                     "/api/cursos/aprobacion",
-                    "/api/cronogramas/**"
+                    "/api/cronogramas/**",
+                    "/api/cuenta-corriente/**"
                 ).hasAnyRole("ALUMNO", "ADMIN")
 
                 // Solo ADMIN puede crear admins de desarrollo

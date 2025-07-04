@@ -10,4 +10,5 @@ public interface AsistenciaCursoRepository extends JpaRepository<AsistenciaCurso
     boolean existsByAlumno_IdAlumnoAndCronogramaCurso_IdCronogramaAndFechaBajaIsNull(int idAlumno, int idCronograma);
     AsistenciaCurso findByAlumno_IdAlumnoAndCronogramaCurso_IdCronogramaAndFechaBajaIsNull(int idAlumno, int idCronograma);
     List<AsistenciaCurso> findByAlumno_IdAlumnoAndFechaBajaIsNull(int idAlumno);
+    List<AsistenciaCurso> findByAlumno_IdAlumno(Integer idAlumno);
 }

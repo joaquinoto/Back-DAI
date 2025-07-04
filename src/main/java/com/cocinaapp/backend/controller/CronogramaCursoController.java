@@ -19,7 +19,10 @@ public class CronogramaCursoController {
     private CronogramaCursoService cronogramaCursoService;
 
     @GetMapping
-    public List<CronogramaCurso> obtenerTodosLosCronogramas() {
+    public List<CronogramaCurso> obtenerCronogramas(@RequestParam(required = false) Integer cursoId) {
+        if (cursoId != null) {
+            return cronogramaCursoService.obtenerCronogramasPorCurso(cursoId);
+        }
         return cronogramaCursoService.obtenerTodosLosCronogramas();
     }
 
@@ -32,7 +35,11 @@ public class CronogramaCursoController {
     @PostMapping
     public ResponseEntity<CronogramaCurso> guardarCronograma(@RequestBody CronogramaCurso cronogramaCurso) {
         CronogramaCurso cronogramaCursoGuardado = cronogramaCursoService.guardarCronograma(cronogramaCurso);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cronogramaCursoGuardado);
+        // Vuelve a buscar el cronograma con las relaciones completas
+        Optional<CronogramaCurso> cronogramaCompleto = cronogramaCursoService.obtenerCronogramaPorId(cronogramaCursoGuardado.getIdCronograma());
+        return cronogramaCompleto
+            .map(c -> ResponseEntity.status(HttpStatus.CREATED).body(c))
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.CREATED).body(cronogramaCursoGuardado));
     }
 
     @DeleteMapping("/{id}")
