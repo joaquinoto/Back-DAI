@@ -5,6 +5,7 @@ import com.cocinaapp.backend.model.CodigoValidacion;
 import com.cocinaapp.backend.model.LoginRequest;
 import com.cocinaapp.backend.model.RegistroRequest;
 import com.cocinaapp.backend.model.Usuario;
+import com.cocinaapp.backend.repository.AlumnoRepository;
 import com.cocinaapp.backend.repository.CodigoValidacionRepository;
 import com.cocinaapp.backend.security.JwtService;
 import com.cocinaapp.backend.service.UsuarioService;
@@ -36,6 +37,9 @@ public class UsuarioController {
 
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private AlumnoRepository alumnoRepository;
 
     @PostMapping("/registro/iniciar")
     public ResponseEntity<String> iniciarRegistro(@RequestParam String email, @RequestParam String alias) {

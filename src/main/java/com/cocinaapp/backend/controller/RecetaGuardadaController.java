@@ -1,6 +1,7 @@
 package com.cocinaapp.backend.controller;
 
 import com.cocinaapp.backend.model.RecetaGuardada;
+import com.cocinaapp.backend.model.RecetaGuardadaDTO;
 import com.cocinaapp.backend.service.RecetaGuardadaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,9 @@ public class RecetaGuardadaController {
         return ResponseEntity.ok("Receta eliminada de guardados.");
     }
 
+    // ✅ MÉTODO MEJORADO: Ahora devuelve RecetaGuardadaDTO en lugar de RecetaGuardada
     @GetMapping
-    public ResponseEntity<List<RecetaGuardada>> listarGuardadas(@RequestParam int idUsuario) {
+    public ResponseEntity<List<RecetaGuardadaDTO>> listarGuardadas(@RequestParam int idUsuario) {
         return ResponseEntity.ok(recetaGuardadaService.listarGuardadas(idUsuario));
     }
 }

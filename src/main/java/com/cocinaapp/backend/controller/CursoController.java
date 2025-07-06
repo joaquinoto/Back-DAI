@@ -7,10 +7,11 @@ import com.cocinaapp.backend.service.CursoService;
 import com.cocinaapp.backend.service.UsuarioService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -24,25 +25,29 @@ public class CursoController {
     private CursoService cursoService;
 
     @Autowired
-    private com.cocinaapp.backend.service.UsuarioService usuarioService;
+    private UsuarioService usuarioService;
 
     @GetMapping
     public ResponseEntity<?> listarCursos(@RequestParam(required = false) Integer idUsuario) {
+        // ✅ CAMBIO: Usar siempre obtenerTodosLosCursos() en lugar de obtenerCursosDisponiblesParaAlumno()
         List<Curso> cursos = cursoService.obtenerTodosLosCursos();
 
         if (idUsuario != null && usuarioService.esAlumno(idUsuario)) {
-            // Para alumnos, devolver cursos completos con URL de imagen
+            // Para alumnos, devolver cursos completos con imagen Base64
             List<CursoDTO> cursosCompletos = cursos.stream()
                     .map(CursoDTO::fromCurso)
                     .toList();
             return ResponseEntity.ok(cursosCompletos);
         } else {
-            // Para visitantes, devolver solo resumen
+            // Para visitantes, devolver solo resumen con URL de imagen
             List<CursoResumenDTO> resumen = cursos.stream().map(curso -> {
                 CursoResumenDTO dto = new CursoResumenDTO();
                 dto.setIdCurso(curso.getIdCurso());
                 dto.setNombre(curso.getNombre());
                 dto.setDescripcion(curso.getDescripcion());
+                dto.setPrecio(curso.getPrecio());
+                dto.setModalidad(curso.getModalidad());
+                dto.setDuracion(curso.getDuracion());
                 // Generar URL de imagen si existe
                 if (curso.getImagen() != null) {
                     dto.setImagenUrl("/api/cursos/" + curso.getIdCurso() + "/imagen");
@@ -98,6 +103,28 @@ public class CursoController {
         }
     }
 
+    @PutMapping("/{id}/imagen")
+    public ResponseEntity<Curso> actualizarImagenCurso(
+            @PathVariable Integer id,
+            @RequestParam("imagen") MultipartFile imagen) {
+        try {
+            Optional<Curso> cursoOpt = cursoService.obtenerCursoPorId(id);
+            if (cursoOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Curso curso = cursoOpt.get();
+            if (imagen != null && !imagen.isEmpty()) {
+                curso.setImagen(imagen.getBytes());
+            }
+            
+            Curso cursoActualizado = cursoService.guardarCurso(curso);
+            return ResponseEntity.ok(cursoActualizado);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarCurso(@PathVariable Integer id) {
         cursoService.eliminarCurso(id);
@@ -106,12 +133,14 @@ public class CursoController {
 
     @GetMapping("/{id}/imagen")
     public ResponseEntity<byte[]> obtenerImagenCurso(@PathVariable Integer id) {
-        Optional<Curso> curso = cursoService.obtenerCursoPorId(id);
-        return curso
-                .filter(c -> c.getImagen() != null)
-                .map(c -> ResponseEntity.ok()
-                        .header("Content-Type", "image/jpeg")
-                        .body(c.getImagen()))
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Curso> cursoOpt = cursoService.obtenerCursoPorId(id);
+        
+        if (cursoOpt.isPresent() && cursoOpt.get().getImagen() != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_JPEG);
+            return new ResponseEntity<>(cursoOpt.get().getImagen(), headers, HttpStatus.OK);
+        }
+        
+        return ResponseEntity.notFound().build();
     }
 }

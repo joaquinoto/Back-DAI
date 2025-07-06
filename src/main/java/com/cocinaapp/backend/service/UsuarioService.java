@@ -3,6 +3,7 @@ package com.cocinaapp.backend.service;
 import com.cocinaapp.backend.model.Alumno;
 import com.cocinaapp.backend.model.CodigoValidacion;
 import com.cocinaapp.backend.model.Usuario;
+import com.cocinaapp.backend.repository.AlumnoRepository;
 import com.cocinaapp.backend.repository.CodigoValidacionRepository;
 import com.cocinaapp.backend.repository.UsuarioRepository;
 
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +38,7 @@ public class UsuarioService {
     private JavaMailSender mailSender;
 
     @Autowired
-    private com.cocinaapp.backend.repository.AlumnoRepository alumnoRepository;
+    private AlumnoRepository alumnoRepository;
 
     public String iniciarRegistro(String email, String alias) {
         if (usuarioRepository.findByMail(email).isPresent()) {
@@ -70,7 +72,7 @@ public class UsuarioService {
         return "Código enviado al correo: " + email;
     }
 
-        public boolean completarRegistro(String email, String codigo, Usuario usuario, Alumno alumno, boolean esAlumno) {
+    public boolean completarRegistro(String email, String codigo, Usuario usuario, Alumno alumno, boolean esAlumno) {
         
         System.out.println("DEBUG UsuarioService: Avatar en usuario (service): " +
             (usuario.getAvatar() != null ? usuario.getAvatar().length : "null"));
@@ -105,10 +107,10 @@ public class UsuarioService {
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
         if (esAlumno) {
-        alumno.setUsuario(usuarioGuardado); 
-        alumno.setCuentaCorriente(0.0);
-        alumnoRepository.save(alumno);
-    }
+            alumno.setUsuario(usuarioGuardado); 
+            alumno.setCuentaCorriente(0.0);
+            alumnoRepository.save(alumno);
+        }
 
         CodigoValidacion cod = validacion.get();
         cod.setUsado(true);
@@ -177,68 +179,68 @@ public class UsuarioService {
     }
 
     public boolean completarRecuperacion(String email, String codigo, String nuevaContrasena) {
-    Optional<CodigoValidacion> validacion = codigoValidacionRepository.findAllByEmailAndUsadoFalse(email)
-        .stream()
-        .filter(c -> "RECUPERACION".equals(c.getTipo()) && c.getCodigo().equals(codigo))
-        .findFirst();
+        Optional<CodigoValidacion> validacion = codigoValidacionRepository.findAllByEmailAndUsadoFalse(email)
+            .stream()
+            .filter(c -> "RECUPERACION".equals(c.getTipo()) && c.getCodigo().equals(codigo))
+            .findFirst();
 
-    if (validacion.isEmpty()) {
-        throw new IllegalArgumentException("Código inválido o expirado.");
+        if (validacion.isEmpty()) {
+            throw new IllegalArgumentException("Código inválido o expirado.");
+        }
+        if (validacion.get().getFechaExpiracion().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("El código ha expirado.");
+        }
+
+        Usuario usuario = usuarioRepository.findByMail(email)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
+
+        usuario.setContrasena(passwordEncoder.encode(nuevaContrasena));
+        usuarioRepository.save(usuario);
+
+        CodigoValidacion cod = validacion.get();
+        cod.setUsado(true);
+        codigoValidacionRepository.save(cod);
+
+        return true;
     }
-    if (validacion.get().getFechaExpiracion().isBefore(LocalDateTime.now())) {
-        throw new IllegalArgumentException("El código ha expirado.");
-    }
-
-    Usuario usuario = usuarioRepository.findByMail(email)
-        .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
-
-    usuario.setContrasena(passwordEncoder.encode(nuevaContrasena));
-    usuarioRepository.save(usuario);
-
-    CodigoValidacion cod = validacion.get();
-    cod.setUsado(true);
-    codigoValidacionRepository.save(cod);
-
-    return true;
-}
 
     public void convertirAAlumno(int idUsuario, Alumno datosAlumno) {
-    Usuario usuario = usuarioRepository.findById(idUsuario)
-            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-    if (alumnoRepository.existsById(idUsuario)) {
-        throw new IllegalArgumentException("El usuario ya es alumno.");
+        if (alumnoRepository.existsById(idUsuario)) {
+            throw new IllegalArgumentException("El usuario ya es alumno.");
+        }
+
+        if (datosAlumno.getNumeroTarjeta() == null ||
+            datosAlumno.getDniFrente() == null ||
+            datosAlumno.getDniFondo() == null ||
+            datosAlumno.getTramite() == null) {
+            throw new IllegalArgumentException("Faltan datos obligatorios para alumno.");
+        }
+
+        usuario.setRol("ALUMNO");
+        usuarioRepository.save(usuario);
+
+        datosAlumno.setIdAlumno(idUsuario);
+        datosAlumno.setCuentaCorriente(0.0);
+        datosAlumno.setUsuario(usuario);
+        alumnoRepository.save(datosAlumno);
     }
-
-    if (datosAlumno.getNumeroTarjeta() == null ||
-        datosAlumno.getDniFrente() == null ||
-        datosAlumno.getDniFondo() == null ||
-        datosAlumno.getTramite() == null) {
-        throw new IllegalArgumentException("Faltan datos obligatorios para alumno.");
-    }
-
-    usuario.setRol("ALUMNO");
-    usuarioRepository.save(usuario);
-
-    datosAlumno.setIdAlumno(idUsuario);
-    datosAlumno.setCuentaCorriente(0.0);
-    datosAlumno.setUsuario(usuario);
-    alumnoRepository.save(datosAlumno);
-}
 
     public void liberarMailPendiente(String email) {
-    List<CodigoValidacion> codigos = codigoValidacionRepository.findAllByEmailAndUsadoFalse(email);
-    if (codigos.isEmpty()) {
-        throw new IllegalArgumentException("No hay registros pendientes para este mail.");
-    }
-    codigos.forEach(c -> {
-        c.setUsado(true);
-        codigoValidacionRepository.save(c);
-    });
+        List<CodigoValidacion> codigos = codigoValidacionRepository.findAllByEmailAndUsadoFalse(email);
+        if (codigos.isEmpty()) {
+            throw new IllegalArgumentException("No hay registros pendientes para este mail.");
+        }
+        codigos.forEach(c -> {
+            c.setUsado(true);
+            codigoValidacionRepository.save(c);
+        });
     }
 
     public boolean esAlumno(Integer idUsuario) {
-    return alumnoRepository.findById(idUsuario).isPresent();
+        return alumnoRepository.findById(idUsuario).isPresent();
     }
 
     public Optional<byte[]> obtenerAvatarPorId(int id) {
@@ -246,31 +248,138 @@ public class UsuarioService {
                 .map(usuario -> usuario.getAvatar());
     }
 
-    public void actualizarPerfil(int id, Map<String, Object> updates) {
-    Usuario usuario = usuarioRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-
-    // Actualizar nombre si viene
-    if (updates.containsKey("nombre")) {
-        usuario.setNombre((String) updates.get("nombre"));
-    }
-    // Actualizar avatar si viene (debe ser base64 puro)
-    if (updates.containsKey("avatar")) {
-        Object avatarObj = updates.get("avatar");
-        if (avatarObj instanceof String) {
-            String avatarStr = (String) avatarObj;
-            if (avatarStr.isEmpty()) {
-                usuario.setAvatar(null);
+    // ✅ MÉTODO MEJORADO: Maneja conversión automática a alumno
+    public void actualizarPerfil(int idUsuario, Map<String, Object> updates) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findById(idUsuario);
+        if (usuarioOpt.isEmpty()) {
+            throw new IllegalArgumentException("Usuario no encontrado.");
+        }
+        
+        Usuario usuario = usuarioOpt.get();
+        String rolAnterior = usuario.getRol(); // ✅ Guardar el rol anterior
+        
+        // Actualizar campos básicos
+        if (updates.containsKey("nombre")) {
+            usuario.setNombre((String) updates.get("nombre"));
+        }
+        
+        if (updates.containsKey("avatar")) {
+            String avatarBase64 = (String) updates.get("avatar");
+            if (avatarBase64 != null && !avatarBase64.trim().isEmpty()) {
+                try {
+                    byte[] avatarBytes = Base64.getDecoder().decode(avatarBase64);
+                    usuario.setAvatar(avatarBytes);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Avatar en formato Base64 inválido.");
+                }
             } else {
-                usuario.setAvatar(java.util.Base64.getDecoder().decode(avatarStr));
+                usuario.setAvatar(null); // Permitir eliminar avatar
             }
         }
+        
+        // ✅ NUEVO: Manejar cambio de rol a alumno
+        if (updates.containsKey("rol")) {
+            String nuevoRol = ((String) updates.get("rol")).toUpperCase();
+            usuario.setRol(nuevoRol);
+            
+            // Si cambió de usuario a alumno, crear registro en tabla alumnos
+            if (!"ALUMNO".equals(rolAnterior.toUpperCase()) && "ALUMNO".equals(nuevoRol)) {
+                crearRegistroAlumno(usuario, updates);
+            }
+        }
+        
+        usuarioRepository.save(usuario);
     }
-    // Actualizar rol si viene
-    if (updates.containsKey("rol")) {
-        usuario.setRol(((String) updates.get("rol")).toUpperCase());
+    
+    // ✅ NUEVO: Método para crear registro de alumno
+    private void crearRegistroAlumno(Usuario usuario, Map<String, Object> updates) {
+        // Verificar que no exista ya un registro de alumno
+        Optional<Alumno> alumnoExistente = alumnoRepository.findByUsuario_IdUsuario(usuario.getIdUsuario());
+        if (alumnoExistente.isPresent()) {
+            // Si ya existe, solo actualizar los datos
+            actualizarDatosAlumno(alumnoExistente.get(), updates);
+            return;
+        }
+        
+        // Crear nuevo registro de alumno
+        Alumno nuevoAlumno = new Alumno();
+        nuevoAlumno.setUsuario(usuario);
+        nuevoAlumno.setCuentaCorriente(0.0); // Saldo inicial en 0
+        
+        // Obtener datos específicos de alumno del request
+        if (updates.containsKey("numeroTarjeta")) {
+            nuevoAlumno.setNumeroTarjeta((String) updates.get("numeroTarjeta"));
+        }
+        
+        if (updates.containsKey("dniFrente")) {
+            String dniFrente = (String) updates.get("dniFrente");
+            if (dniFrente != null && !dniFrente.trim().isEmpty()) {
+                try {
+                    nuevoAlumno.setDniFrente(Base64.getDecoder().decode(dniFrente));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("DNI frente en formato Base64 inválido.");
+                }
+            }
+        }
+        
+        if (updates.containsKey("dniFondo")) {
+            String dniFondo = (String) updates.get("dniFondo");
+            if (dniFondo != null && !dniFondo.trim().isEmpty()) {
+                try {
+                    nuevoAlumno.setDniFondo(Base64.getDecoder().decode(dniFondo));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("DNI fondo en formato Base64 inválido.");
+                }
+            }
+        }
+        
+        if (updates.containsKey("tramite")) {
+            nuevoAlumno.setTramite((String) updates.get("tramite"));
+        }
+        
+        alumnoRepository.save(nuevoAlumno);
     }
-
-    usuarioRepository.save(usuario);
+    
+    // ✅ NUEVO: Método para actualizar datos de alumno existente
+    private void actualizarDatosAlumno(Alumno alumno, Map<String, Object> updates) {
+        boolean cambios = false;
+        
+        if (updates.containsKey("numeroTarjeta")) {
+            alumno.setNumeroTarjeta((String) updates.get("numeroTarjeta"));
+            cambios = true;
+        }
+        
+        if (updates.containsKey("dniFrente")) {
+            String dniFrente = (String) updates.get("dniFrente");
+            if (dniFrente != null && !dniFrente.trim().isEmpty()) {
+                try {
+                    alumno.setDniFrente(Base64.getDecoder().decode(dniFrente));
+                    cambios = true;
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("DNI frente en formato Base64 inválido.");
+                }
+            }
+        }
+        
+        if (updates.containsKey("dniFondo")) {
+            String dniFondo = (String) updates.get("dniFondo");
+            if (dniFondo != null && !dniFondo.trim().isEmpty()) {
+                try {
+                    alumno.setDniFondo(Base64.getDecoder().decode(dniFondo));
+                    cambios = true;
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("DNI fondo en formato Base64 inválido.");
+                }
+            }
+        }
+        
+        if (updates.containsKey("tramite")) {
+            alumno.setTramite((String) updates.get("tramite"));
+            cambios = true;
+        }
+        
+        if (cambios) {
+            alumnoRepository.save(alumno);
+        }
     }
 }

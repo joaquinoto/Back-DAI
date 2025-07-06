@@ -8,4 +8,7 @@ public class CursoResumenDTO {
     private String nombre;
     private String descripcion;
     private String imagenUrl;
+    private Double precio;        
+    private String modalidad;     
+    private Integer duracion; 
 }

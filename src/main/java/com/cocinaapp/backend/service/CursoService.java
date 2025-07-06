@@ -23,6 +23,13 @@ public class CursoService {
         return cursoRepository.findAll();
     }
 
+    // ✅ AGREGAR ESTE MÉTODO
+    public List<Curso> obtenerCursosDisponiblesParaAlumno(Integer idAlumno) {
+        // Por ahora, devolver todos los cursos
+        // Puedes agregar lógica específica aquí si necesitas filtrar cursos para ciertos alumnos
+        return cursoRepository.findAll();
+    }
+
     public Optional<Curso> obtenerCursoPorId(Integer id) {
         return cursoRepository.findById(id);
     }
@@ -34,5 +41,4 @@ public class CursoService {
     public void eliminarCurso(Integer id) {
         cursoRepository.deleteById(id);
     }
-
 }
